@@ -1,11 +1,5 @@
-import 'dart:convert';
-import 'package:codeapp/code_error/detail_kode.dart';
-import 'package:codeapp/battom/code.dart';
-import 'package:codeapp/code_error/tambah_kode.dart';
-import 'package:codeapp/code_error/ubah_kode.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart';
+import 'package:codeapp/code_error/detail_kode.dart';
 
 class HalamanCode extends StatefulWidget {
   const HalamanCode({super.key});
@@ -15,202 +9,208 @@ class HalamanCode extends StatefulWidget {
 }
 
 class _HalamanCodeState extends State<HalamanCode> {
-  List _listData = [];
-  bool _loading = true;
-  final logger = Logger();
-
-  final String baseUrl = 'http://10.230.232.96/api_code/';
-
-  Future _getData() async {
-    setState(() => _loading = true);
-
-    try {
-      final response = await http.get(
-        Uri.parse('${baseUrl}read.php'),
-      );
-
-   // DEBUG
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
-          _listData = data ?? [];
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      logger.e("Error: $e");
-      setState(() => _loading = false);
-    }
+  final List<Map<String, dynamic>> _listData = [
+    {
+    "id_kode": "1",
+    "kode": "12",
+    "nama_error": "CKP Sensor",
+    "deskripsi": "Sensor posisi crankshaft bermasalah",
+    "penyebab": "Sensor rusak atau kabel putus",
+    "solusi": "Periksa kabel dan ganti sensor"
+  },
+  {
+    "id_kode": "2",
+    "kode": "13",
+    "nama_error": "Intake Air Pressure Sensor",
+    "deskripsi": "Sensor tekanan udara masuk bermasalah",
+    "penyebab": "Sensor rusak",
+    "solusi": "Ganti sensor"
+  },
+  {
+    "id_kode": "3",
+    "kode": "21",
+    "nama_error": "ECT Sensor",
+    "deskripsi": "Sensor suhu mesin bermasalah",
+    "penyebab": "Sensor kotor",
+    "solusi": "Bersihkan atau ganti sensor"
+  },
+  {
+    "id_kode": "4",
+    "kode": "22",
+    "nama_error": "Intake Air Temperature Sensor",
+    "deskripsi": "Sensor suhu udara masuk bermasalah",
+    "penyebab": "Kabel putus",
+    "solusi": "Periksa kabel sensor"
+  },
+  {
+    "id_kode": "5",
+    "kode": "23",
+    "nama_error": "Lean Angle Sensor",
+    "deskripsi": "Sensor kemiringan aktif",
+    "penyebab": "Motor jatuh",
+    "solusi": "Reset sensor"
+  },
+  {
+    "id_kode": "6",
+    "kode": "29",
+    "nama_error": "ISCV",
+    "deskripsi": "Idle Speed Control Valve bermasalah",
+    "penyebab": "Katup macet",
+    "solusi": "Bersihkan ISCV"
+  },
+  {
+    "id_kode": "7",
+    "kode": "33",
+    "nama_error": "O2 Sensor",
+    "deskripsi": "Sensor oksigen tidak normal",
+    "penyebab": "Sensor rusak",
+    "solusi": "Ganti sensor"
+  },
+  {
+    "id_kode": "8",
+    "kode": "39",
+    "nama_error": "Injector",
+    "deskripsi": "Injector tidak bekerja",
+    "penyebab": "Injector tersumbat",
+    "solusi": "Bersihkan injector"
+  },
+  {
+    "id_kode": "9",
+    "kode": "41",
+    "nama_error": "Lean Angle Sensor",
+    "deskripsi": "Sensor kemiringan motor error",
+    "penyebab": "Sensor rusak",
+    "solusi": "Ganti sensor"
+  },
+  {
+    "id_kode": "10",
+    "kode": "42",
+    "nama_error": "Vehicle Speed Sensor",
+    "deskripsi": "Sensor kecepatan tidak terdeteksi",
+    "penyebab": "Sensor kotor",
+    "solusi": "Bersihkan sensor"
+  },
+  {
+    "id_kode": "11",
+    "kode": "46",
+    "nama_error": "Charging System",
+    "deskripsi": "Sistem pengisian bermasalah",
+    "penyebab": "Spul atau kiprok rusak",
+    "solusi": "Periksa sistem pengisian"
+  },
+  {
+    "id_kode": "12",
+    "kode": "52",
+    "nama_error": "Injector",
+    "deskripsi": "Injector tidak bekerja normal",
+    "penyebab": "Injector mampet",
+    "solusi": "Bersihkan injector"
+  },
+  {
+    "id_kode": "13",
+    "kode": "54",
+    "nama_error": "Bank Angle Sensor",
+    "deskripsi": "Sensor kemiringan aktif",
+    "penyebab": "Motor terjatuh",
+    "solusi": "Reset sensor"
+  },
+  {
+    "id_kode": "14",
+    "kode": "C14",
+    "nama_error": "Throttle Position Sensor",
+    "deskripsi": "TPS tidak akurat",
+    "penyebab": "Sensor aus",
+    "solusi": "Kalibrasi atau ganti TPS"
+  },
+  {
+    "id_kode": "15",
+    "kode": "C21",
+    "nama_error": "Intake Air Temperature",
+    "deskripsi": "Sensor suhu udara bermasalah",
+    "penyebab": "Sensor rusak",
+    "solusi": "Ganti sensor"
+  },
+  {
+    "id_kode": "16",
+    "kode": "C24",
+    "nama_error": "Ignition Coil",
+    "deskripsi": "Koil pengapian bermasalah",
+    "penyebab": "Koil lemah",
+    "solusi": "Ganti koil"
+  },
+  {
+    "id_kode": "17",
+    "kode": "C28",
+    "nama_error": "Secondary Throttle Valve",
+    "deskripsi": "Katup throttle sekunder error",
+    "penyebab": "Motor servo rusak",
+    "solusi": "Periksa servo"
+  },
+  {
+    "id_kode": "18",
+    "kode": "C41",
+    "nama_error": "Fuel Pump",
+    "deskripsi": "Pompa bahan bakar bermasalah",
+    "penyebab": "Fuel pump lemah",
+    "solusi": "Ganti fuel pump"
+  },
+  {
+    "id_kode": "19",
+    "kode": "C42",
+    "nama_error": "Ignition Switch",
+    "deskripsi": "Kunci kontak tidak terbaca",
+    "penyebab": "Switch rusak",
+    "solusi": "Periksa switch"
+  },
+  {
+    "id_kode": "20",
+    "kode": "C46",
+    "nama_error": "Exhaust Valve Actuator",
+    "deskripsi": "Katup knalpot elektronik error",
+    "penyebab": "Motor actuator rusak",
+    "solusi": "Ganti actuator"
   }
-
-  Future<bool> _hapusData(String id) async {
-    try {
-      final respon = await http.post(
-        Uri.parse('${baseUrl}delete.php'),
-        body: {"id_kode": id},
-      );
-
-   
-
-      if (respon.statusCode == 200) {
-        final data = jsonDecode(respon.body);
-        return data['success'] == true;
-      }
-      return false;
-    } catch (e) {
-      logger.e("Error: $e");
-      return false;
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getData();
-  }
+];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _listData.isEmpty
-              ? const Center(child: Text("Data kosong"))
-              : RefreshIndicator(
-                  onRefresh: _getData,
-                  child: ListView.builder(
-                    itemCount: _listData.length,
-                    itemBuilder: (context, index) {
-                      var data = _listData[index];
+      appBar: AppBar(
+        title: const Text("Data Kode Error"),
+        centerTitle: true,
+      ),
+      body: ListView.builder(
+        itemCount: _listData.length,
+        itemBuilder: (context, index) {
+          final data = _listData[index];
 
-                      return Card(
-                        child: InkWell(
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DetailCode(mapData: data),
-                              ),
-                            );
-                            _getData(); // refresh setelah balik
-                          },
-                          child: ListTile(
-                            title:
-                                Text("Kode: ${data['kode'] ?? '-'}"),
-                            subtitle: Text(
-                                data['nama_error'] ?? 'Tidak ada'),
-                            leading: CircleAvatar(
-                              child: Text(
-                                  data['kode']?.toString() ?? '?'),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // EDIT
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            UbahCode(
-                                                mapData: data),
-                                      ),
-                                    );
-                                    _getData(); // refresh
-                                  },
-                                ),
-
-                                // DELETE
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          content: const Text(
-                                              "Yakin ingin menghapus kode ini?"),
-                                          actions: [
-                                            ElevatedButton(
-                                              onPressed: () async {
-                                                Navigator.pop(
-                                                    context);
-
-                                                final result =
-                                                    await _hapusData(
-                                                        data[
-                                                            'id_kode']);
-
-                                                if (result) {
-                                                  messagerKey
-                                                      .currentState!
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          "Data berhasil dihapus"),
-                                                    ),
-                                                  );
-                                                  _getData();
-                                                } else {
-                                                  messagerKey
-                                                      .currentState!
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          "Gagal menghapus data"),
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              style:
-                                                  ElevatedButton
-                                                      .styleFrom(
-                                                backgroundColor:
-                                                    Colors.red,
-                                              ),
-                                              child:
-                                                  const Text("Hapus"),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                Navigator.pop(
-                                                    context);
-                                              },
-                                              child:
-                                                  const Text("Batal"),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+          return Card(
+            margin: const EdgeInsets.all(8),
+            child: ListTile(
+              leading: CircleAvatar(
+                child: Text(
+                  data["kode"],
                 ),
-
-      // tombol tambah
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green,
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const TambahCode()),
+              ),
+              title: Text(
+                data["nama_error"],
+              ),
+              subtitle: Text(
+                "Kode Error : ${data["kode"]}",
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        DetailCode(mapData: data),
+                  ),
+                );
+              },
+            ),
           );
-          _getData(); // refresh setelah tambah
         },
-        child: const Icon(Icons.add),
       ),
     );
   }

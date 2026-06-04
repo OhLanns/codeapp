@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'pages/login.dart';  // Import halaman login
-import 'pages/home_page.dart';   // Import halaman home
-import 'battom/setting.dart';   // Import halaman setting
-// ✅ Main function untuk menjalankan aplikasi
-void main() {
-  runApp(const MyApp());
+
+import '/provider/auth_provider.dart';
+import 'firebase_options.dart';
+
+import 'pages/login.dart';
+import 'pages/home_page.dart';
+import 'battom/setting.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AuthProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,49 +31,57 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Aplikasi Saya',
+      title: 'Code App',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',  // Route awal akan cek status login
+      initialRoute: '/',
       routes: {
-        '/setting': (context) => const SettingPage(),
-        '/': (context) => const SplashScreen(),  // Halaman pengecekan
+        '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
-
+        '/setting': (context) => const SettingPage(),
       },
     );
   }
 }
 
-// ✅ SPLASH SCREEN untuk cek status login
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreen> createState() =>
+      _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    checkLogin();
   }
 
-  // Fungsi cek status login dari Shared Preferences
-  Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    
-    // Tunggu 2 detik (opsional)
-    await Future.delayed(const Duration(seconds: 2));
-    
+  Future<void> checkLogin() async {
+    final prefs =
+        await SharedPreferences.getInstance();
+
+    bool isLoggedIn =
+        prefs.getBool('isLoggedIn') ?? false;
+
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
+
+    if (!mounted) return;
+
     if (isLoggedIn) {
-      // Jika sudah login, langsung ke HomePage
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(
+        context,
+        '/home',
+      );
     } else {
-      // Jika belum login, ke LoginPage
-      Navigator.pushReplacementNamed(context, '/login');
+      Navigator.pushReplacementNamed(
+        context,
+        '/login',
+      );
     }
   }
 
@@ -65,7 +90,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return const Scaffold(
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 20),
