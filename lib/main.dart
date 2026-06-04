@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login.dart';  // Import halaman login
 import 'pages/home_page.dart';   // Import halaman home
 import 'battom/setting.dart';   // Import halaman setting
-
+// ✅ Main function untuk menjalankan aplikasi
 void main() {
   runApp(const MyApp());
 }
