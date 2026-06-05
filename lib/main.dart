@@ -30,15 +30,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Code App',
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
-        '/setting': (context) => const SettingPage(),
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return MaterialApp(
+          title: 'Code App',
+          debugShowCheckedModeBanner: false,
+          
+          // ✅ Sinkronisasi Tema Global
+          themeMode: authProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          theme: ThemeData(
+            brightness: Brightness.light,
+            primaryColor: Colors.blue,
+            scaffoldBackgroundColor: Colors.white, 
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF121212), 
+            useMaterial3: true,
+          ),
+
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const SplashScreen(),
+            '/login': (context) => const LoginPage(),
+            '/home': (context) => const HomePage(),
+            '/setting': (context) => const SettingPage(),
+          },
+        );
       },
     );
   }
@@ -48,8 +67,7 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() =>
-      _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
@@ -60,42 +78,48 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkLogin() async {
-    final prefs =
-        await SharedPreferences.getInstance();
+    // ✅ PERBAIKAN UTAMA: Beri jeda sedikit lebih lama (1 detik) khusus saat aplikasi dingin (cold start)
+    // Ini memberikan waktu yang cukup bagi SharedPreferences di AuthProvider untuk selesai dimuat.
+    await Future.delayed(const Duration(seconds: 1));
 
-    bool isLoggedIn =
-        prefs.getBool('isLoggedIn') ?? false;
+    final prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    await Future.delayed(
-      const Duration(seconds: 2),
-    );
+    // Jeda tambahan agar splash screen tidak berkedip terlalu cepat (Total splash 2.5 detik)
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) return;
 
     if (isLoggedIn) {
-      Navigator.pushReplacementNamed(
-        context,
-        '/home',
-      );
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
-      Navigator.pushReplacementNamed(
-        context,
-        '/login',
-      );
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    // ✅ Membaca tema langsung dari AuthProvider agar background SplashScreen ikut gelap sejak awal dibuka
+    final authProvider = Provider.of<AuthProvider>(context);
+    final isDark = authProvider.isDarkMode;
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       body: Center(
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text("Memuat aplikasi..."),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(isDark ? Colors.white : Colors.blue),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Memuat aplikasi...",
+              style: TextStyle(
+                color: isDark ? Colors.white : Colors.black,
+                fontSize: 16,
+              ),
+            ),
           ],
         ),
       ),

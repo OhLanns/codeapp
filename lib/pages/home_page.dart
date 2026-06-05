@@ -31,11 +31,6 @@ class _MyWidgetState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home"),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-      ),
       // TAMPILKAN KONTEN SESUAI INDEX YANG DIPILIH
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
