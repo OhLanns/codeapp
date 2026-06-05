@@ -4,22 +4,38 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '/provider/auth_provider.dart';
+import '/provider/announcement_provider.dart'; // ✅ IMPORT BARU: Mengubungkan provider pengumuman
+import '/services/notification_service.dart'; // Jaluk service local notification terupdate
 import 'firebase_options.dart';
 
 import 'pages/login.dart';
 import 'pages/home_page.dart';
 import 'battom/setting.dart';
+import 'battom/code.dart'; // Menyelaraskan lokasi file target CodePage Anda
 
 Future<void> main() async {
+  // Menjamin seluruh engine widget flutter siap sebelum asinkronus berjalan
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ✅ Inisialisasi Firebase Core
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // ✅ Memperbaiki instansiasi objek agar tidak ganda/double teks
+  final notificationService = NotificationService();
+  await notificationService.init();
+  
+  // ✅ Meminta izin runtime lewat objek yang benar
+  await notificationService.requestNotificationPermission();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    // ✅ PERBAIKAN UTAMA: Menggunakan MultiProvider agar kedua provider aktif bersamaan
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AnnouncementProvider()), // Menampung data pengumuman & status badge
+      ],
       child: const MyApp(),
     ),
   );
@@ -36,7 +52,7 @@ class MyApp extends StatelessWidget {
           title: 'Code App',
           debugShowCheckedModeBanner: false,
           
-          // ✅ Sinkronisasi Tema Global
+          // ✅ Sinkronisasi Tema Global Terpusat dari AuthProvider
           themeMode: authProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           theme: ThemeData(
             brightness: Brightness.light,
@@ -56,6 +72,7 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginPage(),
             '/home': (context) => const HomePage(),
             '/setting': (context) => const SettingPage(),
+            '/code': (context) => const CodePage(), // Terhubung dengan CodePage Anda
           },
         );
       },
@@ -78,18 +95,18 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkLogin() async {
-    // ✅ PERBAIKAN UTAMA: Beri jeda sedikit lebih lama (1 detik) khusus saat aplikasi dingin (cold start)
-    // Ini memberikan waktu yang cukup bagi SharedPreferences di AuthProvider untuk selesai dimuat.
+    // Memberikan jeda 1 detik agar SharedPreferences di AuthProvider tuntas memuat tema
     await Future.delayed(const Duration(seconds: 1));
 
     final prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    // Jeda tambahan agar splash screen tidak berkedip terlalu cepat (Total splash 2.5 detik)
+    // Sisa jeda penahanan splash screen (Total durasi 2.5 detik)
     await Future.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) return;
 
+    // Alur penentuan halaman masuk
     if (isLoggedIn) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
@@ -99,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Membaca tema langsung dari AuthProvider agar background SplashScreen ikut gelap sejak awal dibuka
+    // Background langsung mengunci ke data tema asli sejak milidetik pertama dibuka
     final authProvider = Provider.of<AuthProvider>(context);
     final isDark = authProvider.isDarkMode;
 

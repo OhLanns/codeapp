@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:codeapp/code_error/halaman_kode.dart';
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(); 
+// ✅ IMPORT KORREK: Mengarah ke file konten halaman yang berada di folder code_error
+import 'package:codeapp/code_error/halaman_kode.dart'; 
 
 class CodePage extends StatelessWidget {
   const CodePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Langsung arahkan ke HalamanCode() tanpa dibungkus MaterialApp lagi.
-    // Sekarang halaman ini dijamin akan ikut otomatis menjadi hitam saat mode gelap aktif!
-    return const HalamanCode(); 
+    // ✅ Langsung mengembalikan HalamanPage tanpa pembungkus MaterialApp tambahan
+    // agar sinkronisasi Dark Mode dari AuthProvider tetap mengalir dengan lancar.
+    return const HalamanPage(); 
   }
 }
