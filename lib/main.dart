@@ -3,46 +3,44 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Import Provider & Services
 import '/provider/auth_provider.dart';
-import '/provider/announcement_provider.dart'; // ✅ IMPORT BARU: Mengubungkan provider pengumuman
-import '/services/notification_service.dart'; // Jaluk service local notification terupdate
+import '/provider/announcement_provider.dart';
+import '/services/notification_service.dart';
 import 'firebase_options.dart';
 
+// Import Pages
 import 'pages/login.dart';
 import 'pages/home_page.dart';
 import 'battom/setting.dart';
-import 'battom/code.dart'; // Menyelaraskan lokasi file target CodePage Anda
+import 'battom/code.dart';
 
 Future<void> main() async {
-  // Menjamin seluruh engine widget flutter siap sebelum asinkronus berjalan
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Inisialisasi Firebase Core
+  // Inisialisasi Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // ✅ Memperbaiki instansiasi objek agar tidak ganda/double teks
+  // Inisialisasi Notification Service
   final notificationService = NotificationService();
   await notificationService.init();
-  
-  // ✅ Meminta izin runtime lewat objek yang benar
   await notificationService.requestNotificationPermission();
 
   runApp(
-    // ✅ PERBAIKAN UTAMA: Menggunakan MultiProvider agar kedua provider aktif bersamaan
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => AnnouncementProvider()), // Menampung data pengumuman & status badge
+        ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
       ],
-      child: const MyApp(),
+      child: const CodeApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CodeApp extends StatelessWidget {
+  const CodeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,31 +49,29 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Code App',
           debugShowCheckedModeBanner: false,
-          
-          // ✅ Sinkronisasi Tema Global Terpusat dari AuthProvider
           themeMode: authProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          theme: ThemeData(
-            brightness: Brightness.light,
-            primaryColor: Colors.blue,
-            scaffoldBackgroundColor: Colors.white, 
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF121212), 
-            useMaterial3: true,
-          ),
-
+          theme: _buildThemeData(Brightness.light, Colors.white, Colors.blue),
+          darkTheme: _buildThemeData(Brightness.dark, const Color(0xFF121212), Colors.blueAccent),
           initialRoute: '/',
           routes: {
             '/': (context) => const SplashScreen(),
             '/login': (context) => const LoginPage(),
             '/home': (context) => const HomePage(),
             '/setting': (context) => const SettingPage(),
-            '/code': (context) => const CodePage(), // Terhubung dengan CodePage Anda
+            '/code': (context) => const CodePage(),
           },
         );
       },
+    );
+  }
+
+  ThemeData _buildThemeData(Brightness brightness, Color bgColor, Color primary) {
+    return ThemeData(
+      brightness: brightness,
+      primaryColor: primary,
+      scaffoldBackgroundColor: bgColor,
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(seedColor: primary, brightness: brightness),
     );
   }
 }
@@ -88,56 +84,43 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _visible = false;
+
   @override
   void initState() {
     super.initState();
-    checkLogin();
+    Future.microtask(() => setState(() => _visible = true));
+    _checkLogin();
   }
 
-  Future<void> checkLogin() async {
-    // Memberikan jeda 1 detik agar SharedPreferences di AuthProvider tuntas memuat tema
-    await Future.delayed(const Duration(seconds: 1));
-
+  Future<void> _checkLogin() async {
+    await Future.delayed(const Duration(seconds: 2));
     final prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    // Sisa jeda penahanan splash screen (Total durasi 2.5 detik)
-    await Future.delayed(const Duration(milliseconds: 1500));
-
     if (!mounted) return;
 
-    // Alur penentuan halaman masuk
-    if (isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      Navigator.pushReplacementNamed(context, '/login');
-    }
+    Navigator.pushReplacementNamed(context, isLoggedIn ? '/home' : '/login');
   }
 
   @override
   Widget build(BuildContext context) {
-    // Background langsung mengunci ke data tema asli sejak milidetik pertama dibuka
-    final authProvider = Provider.of<AuthProvider>(context);
-    final isDark = authProvider.isDarkMode;
-
+    final isDark = Provider.of<AuthProvider>(context).isDarkMode;
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(isDark ? Colors.white : Colors.blue),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Memuat aplikasi...",
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.black,
-                fontSize: 16,
-              ),
-            ),
-          ],
+      body: AnimatedOpacity(
+        opacity: _visible ? 1.0 : 0.0,
+        duration: const Duration(seconds: 1),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.code_rounded, size: 80, color: isDark ? Colors.blueAccent : Colors.blue),
+              const SizedBox(height: 30),
+              CircularProgressIndicator(strokeWidth: 3),
+              const SizedBox(height: 20),
+              Text("CODE APP", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            ],
+          ),
         ),
       ),
     );
