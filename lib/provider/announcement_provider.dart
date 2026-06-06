@@ -15,13 +15,13 @@ class AnnouncementProvider with ChangeNotifier {
     _announcements.insert(0, data); // Memasukkan pesan baru di posisi paling atas (paling baru)
     _hasNewAnnouncement = true;     // Aktifkan indikator titik merah
 
-    // ✅ FITUR BARU: Batasi maksimal hanya 5 pesan. 
+    
     // Jika pesan ke-6 masuk, pesan yang paling lama (paling bawah) otomatis dihapus.
     if (_announcements.length > 5) {
       _announcements.removeLast(); 
     }
 
-    notifyListeners();              // Beritahu semua UI (Home & Code Page) untuk memperbarui tampilan
+    notifyListeners();              
   }
 
   // Fungsi untuk menghapus tanda titik merah saat pengguna membuka halaman Code

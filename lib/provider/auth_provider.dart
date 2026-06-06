@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart'; // ✅ Pastikan ini ada
-
+import 'package:shared_preferences/shared_preferences.dart'; 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
@@ -15,16 +14,16 @@ class AuthProvider with ChangeNotifier {
 
   bool _initialized = false;
 
-  // ─── ✅ GETTER INI YANG DICARI OLEH MAIN.DART ───
+  
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode; // ← Pastikan baris ini ada!
 
   AuthProvider() {
-    // ✅ PERBAIKAN UTAMA: Muat tema terlebih dahulu secara aman, baru aktifkan listener Firebase
+    
     _initThemeAndAuth();
   }
 
-  // ✅ FUNGSI BARU: Mengatur urutan inisialisasi data agar tidak saling tabrakan
+  
   Future<void> _initThemeAndAuth() async {
     await _loadThemeFromPrefs(); // Jalankan dan tunggu hingga preferensi tema selesai dimuat
     
@@ -37,7 +36,7 @@ class AuthProvider with ChangeNotifier {
     _initGoogleSignIn();
   }
 
-  // ─── ✅ LOGIKA MANAJEMEN TEMA ───
+  // ─── LOGIKA MANAJEMEN TEMA ───
   Future<void> _loadThemeFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     _isDarkMode = prefs.getBool('darkMode') ?? false;
