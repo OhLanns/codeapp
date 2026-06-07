@@ -3,34 +3,32 @@ import 'package:codeapp/kategori/yamaha.dart';
 import 'package:codeapp/kategori/honda.dart';
 import 'package:codeapp/kategori/suzuki.dart';
 import 'package:codeapp/kategori/kawasaki.dart';
-//apa
+
 class CategoryPage extends StatefulWidget {
-  const CategoryPage ({super.key});
+  const CategoryPage({super.key});
 
   @override
-  State<CategoryPage> createState() => _MyWidgetState();
+  State<CategoryPage> createState() => _CategoryPageState();
 }
 
-class _MyWidgetState extends State<CategoryPage> {
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    if (index == 0) {
+class _CategoryPageState extends State<CategoryPage> {
+  void _onItemTapped(String merek) {
+    if (merek == "YAMAHA") {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const YamahaPage()),
       );
-    } else if (index == 1) {
+    } else if (merek == "HONDA") {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const HondaPage()),
       );
-    } else if (index == 2) {
+    } else if (merek == "SUZUKI") {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const SuzukiPage()),
       );
-    } else if (index == 3) {
+    } else if (merek == "KAWASAKI") {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const KawasakiPage()),
@@ -41,27 +39,31 @@ class _MyWidgetState extends State<CategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Category")),
+      appBar: AppBar(
+        title: const Text("Category"),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _menuButton("YAMAHA", Colors.blue, 0),
+            _menuButton("YAMAHA", Colors.blue, () => _onItemTapped("YAMAHA")),
             const SizedBox(height: 15),
-            _menuButton("HONDA", Colors.red, 1),
+            _menuButton("HONDA", Colors.red, () => _onItemTapped("HONDA")),
             const SizedBox(height: 15),
-            _menuButton("SUZUKI", Colors.orange, 2),
+            _menuButton("SUZUKI", Colors.orange, () => _onItemTapped("SUZUKI")),
             const SizedBox(height: 15),
-            _menuButton("KAWASAKI", Colors.green, 3),
+            _menuButton("KAWASAKI", Colors.green, () => _onItemTapped("KAWASAKI")),
           ],
         ),
       ),
     );
   }
 
-  Widget _menuButton(String title, Color color, int index) {
+  Widget _menuButton(String title, Color color, VoidCallback onTap) {
     return GestureDetector(
-      onTap: () => _onItemTapped(index),
+      onTap: onTap,
       child: Container(
         width: 220,
         height: 60,

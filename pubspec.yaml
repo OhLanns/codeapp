@@ -65,6 +65,12 @@ dev_dependencies:
 flutter:
   assets: 
   - assets/a.jpg
+  - assets/images/
+  - assets/images/
+  - assets/images/yamaha/
+  - assets/images/honda/
+  - assets/images/suzuki/
+  - assets/images/kawasaki/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
