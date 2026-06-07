@@ -3,13 +3,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Import Provider & Services
+// Provider
 import '/provider/auth_provider.dart';
 import '/provider/announcement_provider.dart';
+import '/provider/iklan_provider.dart';
+
+// Services
 import '/services/notification_service.dart';
 import 'firebase_options.dart';
 
-// Import Pages
+// Pages
 import 'pages/login.dart';
 import 'pages/home_page.dart';
 import 'battom/setting.dart';
@@ -18,12 +21,12 @@ import 'battom/code.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Firebase
+  // Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Inisialisasi Notification Service
+  // Notification
   final notificationService = NotificationService();
   await notificationService.init();
   await notificationService.requestNotificationPermission();
@@ -31,8 +34,18 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => AnnouncementProvider(),
+        ),
+
+        // IklanProvider dengan auto load data
+        ChangeNotifierProvider(
+          create: (_) => IklanProvider()..loadIklan(),
+        ),
       ],
       child: const CodeApp(),
     ),
@@ -47,12 +60,27 @@ class CodeApp extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         return MaterialApp(
-          title: 'Code App',
           debugShowCheckedModeBanner: false,
-          themeMode: authProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          theme: _buildThemeData(Brightness.light, Colors.white, Colors.blue),
-          darkTheme: _buildThemeData(Brightness.dark, const Color(0xFF121212), Colors.blueAccent),
+          title: 'Code App',
+
+          themeMode:
+              authProvider.isDarkMode
+                  ? ThemeMode.dark
+                  : ThemeMode.light,
+
+          theme: ThemeData(
+            brightness: Brightness.light,
+            primarySwatch: Colors.blue,
+            useMaterial3: true,
+          ),
+
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            useMaterial3: true,
+          ),
+
           initialRoute: '/',
+
           routes: {
             '/': (context) => const SplashScreen(),
             '/login': (context) => const LoginPage(),
@@ -62,16 +90,6 @@ class CodeApp extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  ThemeData _buildThemeData(Brightness brightness, Color bgColor, Color primary) {
-    return ThemeData(
-      brightness: brightness,
-      primaryColor: primary,
-      scaffoldBackgroundColor: bgColor,
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: primary, brightness: brightness),
     );
   }
 }
@@ -89,36 +107,97 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => setState(() => _visible = true));
+
+    // Animasi fade in
+    Future.microtask(() {
+      if (mounted) {
+        setState(() {
+          _visible = true;
+        });
+      }
+    });
+
     _checkLogin();
   }
 
   Future<void> _checkLogin() async {
+    // Tunggu 2 detik untuk animasi splash screen
     await Future.delayed(const Duration(seconds: 2));
+
     final prefs = await SharedPreferences.getInstance();
-    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    bool isLoggedIn =
+        prefs.getBool('isLoggedIn') ?? false;
 
     if (!mounted) return;
 
-    Navigator.pushReplacementNamed(context, isLoggedIn ? '/home' : '/login');
+    Navigator.pushReplacementNamed(
+      context,
+      isLoggedIn ? '/home' : '/login',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<AuthProvider>(context).isDarkMode;
+    final isDark =
+        Provider.of<AuthProvider>(context).isDarkMode;
+
     return Scaffold(
       body: AnimatedOpacity(
-        opacity: _visible ? 1.0 : 0.0,
+        opacity: _visible ? 1 : 0,
         duration: const Duration(seconds: 1),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment:
+                MainAxisAlignment.center,
             children: [
-              Icon(Icons.code_rounded, size: 80, color: isDark ? Colors.blueAccent : Colors.blue),
+              // Icon dengan efek gradient (opsional)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      isDark ? Colors.blueAccent : Colors.blue,
+                      isDark ? Colors.blue[700]! : Colors.lightBlue,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.code_rounded,
+                  size: 80,
+                  color: Colors.white,
+                ),
+              ),
+
               const SizedBox(height: 30),
-              CircularProgressIndicator(strokeWidth: 3),
+
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+
               const SizedBox(height: 20),
-              Text("CODE APP", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2)),
+
+              const Text(
+                "CODE APP",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Text(
+                "Version 1.0.0",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                ),
+              ),
             ],
           ),
         ),
